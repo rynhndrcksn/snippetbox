@@ -21,7 +21,7 @@ type application struct {
 func main() {
 	addr := flag.String("addr", ":8080", "HTTP port")
 	staticDir := flag.String("staticDir", "./ui/static", "Static assets directory")
-	dbConn := flag.String("dbConn", "web:Password1!@(localhost)/snippetbox?parseTime=true", "Database connection string")
+	dbConn := flag.String("dbConn", "web:pass@/snippetbox?charset=utf8&parseTime=true", "Database connection string")
 	flag.Parse()
 
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
@@ -61,10 +61,7 @@ func openDB(dsn string) (*sql.DB, error) {
 
 	err = db.Ping()
 	if err != nil {
-		err = db.Close()
-		if err != nil {
-			return nil, err
-		}
+		_ = db.Close()
 		return nil, err
 	}
 
