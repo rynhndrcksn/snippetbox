@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/rynhndrcksn/snippetbox/internal/models"
-	"html/template"
 	"net/http"
 	"strconv"
 )
@@ -12,25 +11,35 @@ import (
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Server", "Go")
 
-	files := []string{
-		"./ui/html/base.tmpl",
-		"./ui/html/pages/home.tmpl",
-		"./ui/html/partials/nav.tmpl",
-	}
-
-	// read template file and set it to ts
-	ts, err := template.ParseFiles(files...)
+	snippets, err := app.snippets.Latest()
 	if err != nil {
 		app.serverError(w, r, err)
 		return
 	}
 
-	// .ExecuteTemplate() writes the "base" template as the response body
-	// the last parameter represents any dynamic data
-	err = ts.ExecuteTemplate(w, "base", nil)
-	if err != nil {
-		app.serverError(w, r, err)
+	for _, snippet := range snippets {
+		fmt.Fprintf(w, "%+v\n\n", snippet)
 	}
+
+	//files := []string{
+	//	"./ui/html/base.tmpl",
+	//	"./ui/html/pages/home.tmpl",
+	//	"./ui/html/partials/nav.tmpl",
+	//}
+	//
+	//// read template file and set it to ts
+	//ts, err := template.ParseFiles(files...)
+	//if err != nil {
+	//	app.serverError(w, r, err)
+	//	return
+	//}
+	//
+	//// .ExecuteTemplate() writes the "base" template as the response body
+	//// the last parameter represents any dynamic data
+	//err = ts.ExecuteTemplate(w, "base", nil)
+	//if err != nil {
+	//	app.serverError(w, r, err)
+	//}
 }
 
 func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
