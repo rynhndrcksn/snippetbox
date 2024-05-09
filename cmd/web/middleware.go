@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log/slog"
 	"net/http"
 )
@@ -34,6 +35,22 @@ func (app *application) logRequest(next http.Handler) http.Handler {
 		)
 
 		app.logger.Info("Received request", slog.String("ip", ip), slog.String("proto", proto), slog.String("method", method), slog.String("uri", uri))
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+// recoverPanic checks if there's been a panic and returns a 500 error rather than no response.
+func (app *application) recoverPanic(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Create a deferred function (which will always be run in the event of a panic)
+		defer func() {
+			// Use the builtin recover function to check if there has been a panic or not.
+			if err := recover(); err != nil {
+				w.Header().Set("Connection", "close")
+				app.serverError(w, r, fmt.Errorf("%s", err))
+			}
+		}()
 
 		next.ServeHTTP(w, r)
 	})
