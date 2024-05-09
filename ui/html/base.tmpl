@@ -1,3 +1,4 @@
+{{- /*gotype: github.com/rynhndrcksn/snippetbox/cmd/web.templateData*/ -}}
 {{define "base"}}
     <!doctype html>
     <html lang='en'>
@@ -17,7 +18,7 @@
     <main>
         {{template "main" .}}
     </main>
-    <footer>Powered by <a href='https://go.dev/'>Go</a></footer>
+    <footer>Powered by <a href='https://go.dev/'>Go</a> in {{.CurrentYear}}</footer>
     <script src="/static/js/main.js" type="text/javascript"></script>
     </body>
     </html>
