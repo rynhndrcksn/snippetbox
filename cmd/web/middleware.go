@@ -1,6 +1,9 @@
 package main
 
-import "net/http"
+import (
+	"log/slog"
+	"net/http"
+)
 
 // commonHeaders sets all the default headers we want on every request.
 func commonHeaders(next http.Handler) http.Handler {
@@ -20,4 +23,18 @@ func commonHeaders(next http.Handler) http.Handler {
 	})
 }
 
-//https://fonts.bunny.net
+// logRequests will log information for each request the site gets.
+func (app *application) logRequest(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var (
+			ip     = r.RemoteAddr
+			proto  = r.Proto
+			method = r.Method
+			uri    = r.RequestURI
+		)
+
+		app.logger.Info("Received request", slog.String("ip", ip), slog.String("proto", proto), slog.String("method", method), slog.String("uri", uri))
+
+		next.ServeHTTP(w, r)
+	})
+}
