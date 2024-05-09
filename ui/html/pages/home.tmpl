@@ -13,7 +13,7 @@
             {{range .Snippets}}
                 <tr>
                     <td><a href="/snippet/view/{{.ID}}">{{.Title}}</a></td>
-                    <td>{{.CreatedAt}}</td>
+                    <td>{{humanDate .CreatedAt}}</td>
                     <td>#{{.ID}}</td>
                 </tr>
             {{end}}
