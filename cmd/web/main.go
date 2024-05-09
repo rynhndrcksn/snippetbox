@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"flag"
+	"html/template"
 	"log/slog"
 	"net/http"
 	"os"
@@ -14,8 +15,9 @@ import (
 
 // application struct holds the application-wide dependencies
 type application struct {
-	logger   *slog.Logger
-	snippets *models.SnippetModel
+	logger        *slog.Logger
+	snippets      *models.SnippetModel
+	templateCache map[string]*template.Template
 }
 
 func main() {
@@ -24,7 +26,10 @@ func main() {
 	dbConn := flag.String("dbConn", "web:pass@/snippetbox?charset=utf8&parseTime=true", "Database connection string")
 	flag.Parse()
 
+	// Initialize a new structured logger
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+
+	// Initialize the database connection
 	db, err := openDB(*dbConn)
 	if err != nil {
 		logger.Error(err.Error())
@@ -38,9 +43,18 @@ func main() {
 		}
 	}(db)
 
+	// Initialize a new template cache.
+	templateCache, err := newTemplateCache()
+	if err != nil {
+		logger.Error(err.Error())
+		os.Exit(1)
+	}
+
+	// Add everything to our 'application' struct.
 	app := &application{
-		logger:   logger,
-		snippets: &models.SnippetModel{DB: db},
+		logger:        logger,
+		snippets:      &models.SnippetModel{DB: db},
+		templateCache: templateCache,
 	}
 
 	logger.Info("starting server", slog.String("addr", *addr))
