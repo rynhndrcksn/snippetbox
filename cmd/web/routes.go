@@ -2,7 +2,7 @@ package main
 
 import "net/http"
 
-func (app *application) routes(staticDir string) *http.ServeMux {
+func (app *application) routes(staticDir string) http.Handler {
 	mux := http.NewServeMux()
 
 	// create a file server which serves files out of the "./ui/static" directory
@@ -19,5 +19,5 @@ func (app *application) routes(staticDir string) *http.ServeMux {
 	mux.HandleFunc("GET /snippet/create", app.snippetCreate)
 	mux.HandleFunc("POST /snippet/create", app.snippetCreatePost)
 
-	return mux
+	return commonHeaders(mux)
 }
