@@ -6,6 +6,10 @@ import (
 	"unicode/utf8"
 )
 
+// For more "how do I validate something" questions, refer to this:
+// https://www.alexedwards.net/blog/validation-snippets-for-go
+
+// Validator holds any FieldErrors
 type Validator struct {
 	FieldErrors map[string]string
 }

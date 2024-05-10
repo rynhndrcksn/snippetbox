@@ -16,11 +16,16 @@ func (app *application) routes(staticDir string) http.Handler {
 	// For matching paths, we strip the "/static" prefix before the request reaches the file server.
 	mux.Handle("GET /static/", http.StripPrefix("/static", fileServer))
 
-	// Register application routes.
-	mux.HandleFunc("GET /{$}", app.home)
-	mux.HandleFunc("GET /snippet/view/{id}", app.snippetView)
-	mux.HandleFunc("GET /snippet/create", app.snippetCreate)
-	mux.HandleFunc("POST /snippet/create", app.snippetCreatePost)
+	// Create a middleware chain containing our "dynamic" middleware
+	// that should only be used on dynamic routes.
+	dynamic := alice.New(app.sessionManager.LoadAndSave)
+
+	// Register application routes - because we're using "dynamic" middleware which returns a http.Handler
+	// instead of a http.HandlerFunc, we need to call mux.Handle instead of mux.HandleFunc.
+	mux.Handle("GET /{$}", dynamic.ThenFunc(app.home))
+	mux.Handle("GET /snippet/view/{id}", dynamic.ThenFunc(app.snippetView))
+	mux.Handle("GET /snippet/create", dynamic.ThenFunc(app.snippetCreate))
+	mux.Handle("POST /snippet/create", dynamic.ThenFunc(app.snippetCreatePost))
 
 	// Create a middleware chain containing our "standard" middleware
 	// that should be used on every request the webapp receives.
