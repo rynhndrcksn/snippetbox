@@ -1,22 +1,32 @@
+{{- /*gotype: github.com/rynhndrcksn/snippetbox/cmd/web.templateData*/ -}}
 {{define "title"}}Create a New Snippet{{end}}
 
 {{define "main"}}
     <form action='/snippet/create' method='POST'>
         <div>
             <label for="title">Title:</label>
-            <input id="title" type='text' name='title'>
+            {{with .Form.FieldErrors.title}}
+                <p class='error'>{{.}}</p>
+            {{end}}
+            <input id="title" type='text' name='title' value="{{.Form.Title}}">
         </div>
         <div>
             <label for="content">Content:</label>
-            <textarea id="content" name='content'></textarea>
+            {{ with .Form.FieldErrors.content }}
+                <p class="error">{{.}}</p>
+            {{ end }}
+            <textarea id="content" name='content'>{{.Form.Content}}</textarea>
         </div>
         <div>
             <p>Delete in:</p>
-            <input id="365" type='radio' name='expires' value='365' checked>
+            {{ with .Form.FieldErrors.expires }}
+                <p class="error">{{.}}</p>
+            {{ end }}
+            <input id="365" type='radio' name='expires' value='365' {{if (eq .Form.Expires 365)}}checked{{end}}>
             <label for="365">One Year</label>
-            <input id="7" type='radio' name='expires' value='7'>
+            <input id="7" type='radio' name='expires' value='7' {{if (eq .Form.Expires 7)}}checked{{end}}>
             <label for="7">One Week</label>
-            <input id="1" type='radio' name='expires' value='1'>
+            <input id="1" type='radio' name='expires' value='1' {{if (eq .Form.Expires 1)}}checked{{end}}>
             <label for="1">One Day</label>
         </div>
         <div>
