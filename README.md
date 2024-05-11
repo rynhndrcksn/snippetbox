@@ -28,3 +28,8 @@ unsupported) packages in our internal directory — even if the project code is 
 
 The `ui` directory contains the user interface assets used by the web application.
 Specifically `ui/html` will contain HTML templates while `ui/static` will contain static files (CSS, images, etc).
+
+## TLS
+
+Need an easy way to generate TLS certs for HTTPS during local dev?
+Run `go run /usr/local/go/src/crypto/tls/generate_cert.go --rsa-bits=2048 --host=localhost` in your shell (assuming Linux/MacOS machine).

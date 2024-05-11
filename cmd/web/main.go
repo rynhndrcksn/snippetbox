@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"database/sql"
 	"flag"
 	"html/template"
@@ -63,6 +64,7 @@ func main() {
 	sessionManager := scs.New()
 	sessionManager.Store = mysqlstore.New(db)
 	sessionManager.Lifetime = 12 * time.Hour
+	sessionManager.Cookie.Secure = true // Cookie won't get sent over HTTP, only HTTPS
 
 	// Add everything to our 'application' struct.
 	app := &application{
@@ -73,21 +75,27 @@ func main() {
 		sessionManager: sessionManager,
 	}
 
+	// Initialize a tls.Config struct to hold any non-default TLS settings we want to use.
+	// In this case we're changing it to only use elliptic curves with assembly implementations that Go supports.
+	tlsConfig := &tls.Config{
+		CurvePreferences: []tls.CurveID{tls.X25519, tls.CurveP256},
+	}
+
 	// Initialize a new http.Server so we can customize what the server is doing
 	// more than what http.ListenAndServe can support.
 	srv := &http.Server{
-		Addr:    *addr,
-		Handler: app.routes(*staticDir),
-		// Create a *log.Logger from our structured logger handler, which writes
-		// log entries at Error level, and assign it to the ErrorLog field. If
-		// you preferred to log the server errors at Warn level instead, you
-		// could pass slog.LevelWarn as the final parameter.
-		ErrorLog: slog.NewLogLogger(logger.Handler(), slog.LevelError),
+		Addr:         *addr,
+		Handler:      app.routes(*staticDir),
+		ErrorLog:     slog.NewLogLogger(logger.Handler(), slog.LevelError), // Force HTTP errors to use slog for consistency.
+		TLSConfig:    tlsConfig,
+		IdleTimeout:  time.Minute,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
 	}
 
 	logger.Info("starting server", slog.String("addr", *addr))
 
-	err = srv.ListenAndServe()
+	err = srv.ListenAndServeTLS("./tls/cert.pem", "./tls/key.pem")
 	if err != nil {
 		logger.Error(err.Error())
 		os.Exit(1)
