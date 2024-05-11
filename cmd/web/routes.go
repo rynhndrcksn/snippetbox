@@ -23,6 +23,7 @@ func (app *application) routes(staticDir string) http.Handler {
 	// Register application routes - because we're using "dynamic" middleware which returns a http.Handler
 	// instead of a http.HandlerFunc, we need to call mux.Handle instead of mux.HandleFunc.
 	mux.Handle("GET /{$}", dynamic.ThenFunc(app.home))
+	mux.Handle("GET /", dynamic.ThenFunc(app.notFound))
 	mux.Handle("GET /snippet/view/{id}", dynamic.ThenFunc(app.snippetView))
 	mux.Handle("GET /snippet/create", dynamic.ThenFunc(app.snippetCreate))
 	mux.Handle("POST /snippet/create", dynamic.ThenFunc(app.snippetCreatePost))
