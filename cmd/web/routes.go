@@ -25,13 +25,16 @@ func (app *application) routes(staticDir string) http.Handler {
 	mux.Handle("GET /{$}", dynamic.ThenFunc(app.home))
 	mux.Handle("GET /", dynamic.ThenFunc(app.notFound))
 	mux.Handle("GET /snippet/view/{id}", dynamic.ThenFunc(app.snippetView))
-	mux.Handle("GET /snippet/create", dynamic.ThenFunc(app.snippetCreate))
-	mux.Handle("POST /snippet/create", dynamic.ThenFunc(app.snippetCreatePost))
 	mux.Handle("GET /user/register", dynamic.ThenFunc(app.userRegister))
 	mux.Handle("POST /user/register", dynamic.ThenFunc(app.userRegisterPost))
 	mux.Handle("GET /user/login", dynamic.ThenFunc(app.userLogin))
 	mux.Handle("POST /user/login", dynamic.ThenFunc(app.userLoginPost))
-	mux.Handle("POST /user/logout", dynamic.ThenFunc(app.userLogoutPost))
+
+	// Protected (authenticated only) routes.
+	protected := dynamic.Append(app.requireAuthentication)
+	mux.Handle("GET /snippet/create", protected.ThenFunc(app.snippetCreate))
+	mux.Handle("POST /snippet/create", protected.ThenFunc(app.snippetCreatePost))
+	mux.Handle("POST /user/logout", protected.ThenFunc(app.userLogoutPost))
 
 	// Create a middleware chain containing our "standard" middleware
 	// that should be used on every request the webapp receives.
