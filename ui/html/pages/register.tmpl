@@ -3,6 +3,7 @@
 
 {{ define "main" }}
     <form action="/user/register" method="post" novalidate>
+        <input type='hidden' name='csrf_token' value='{{.CSRFToken}}'>
         <div>
             <label for="name">Name</label>
             {{ with .Form.FieldErrors.name }}

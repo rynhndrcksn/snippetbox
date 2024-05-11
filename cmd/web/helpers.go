@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/go-playground/form/v4"
+	"github.com/justinas/nosurf"
 )
 
 // serverError writes a log entry at Error level and sends a generic 500 http response to the client
@@ -68,14 +69,13 @@ func (app *application) render(w http.ResponseWriter, r *http.Request, status in
 	}
 }
 
-// Create a newTemplateData() helper, which returns a pointer to a templateData
-// struct initialized with the current year. Note that we're not using the
-// *http.Request parameter here at the moment, but we will do later in the book.
+// Create a newTemplateData() helper.
 func (app *application) newTemplateData(r *http.Request) templateData {
 	return templateData{
 		CurrentYear:     time.Now().Year(),
 		Flash:           app.sessionManager.PopString(r.Context(), "flash"),
 		IsAuthenticated: app.isAuthenticated(r),
+		CSRFToken:       nosurf.Token(r),
 	}
 }
 
