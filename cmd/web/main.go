@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"flag"
-	"github.com/alexedwards/scs/mysqlstore"
 	"html/template"
 	"log/slog"
 	"net/http"
@@ -12,6 +11,7 @@ import (
 
 	"github.com/rynhndrcksn/snippetbox/internal/models"
 
+	"github.com/alexedwards/scs/mysqlstore"
 	"github.com/alexedwards/scs/v2"
 	"github.com/go-playground/form/v4"
 	_ "github.com/go-sql-driver/mysql"
@@ -73,13 +73,27 @@ func main() {
 		sessionManager: sessionManager,
 	}
 
+	// Initialize a new http.Server so we can customize what the server is doing
+	// more than what http.ListenAndServe can support.
+	srv := &http.Server{
+		Addr:    *addr,
+		Handler: app.routes(*staticDir),
+		// Create a *log.Logger from our structured logger handler, which writes
+		// log entries at Error level, and assign it to the ErrorLog field. If
+		// you preferred to log the server errors at Warn level instead, you
+		// could pass slog.LevelWarn as the final parameter.
+		ErrorLog: slog.NewLogLogger(logger.Handler(), slog.LevelError),
+	}
+
 	logger.Info("starting server", slog.String("addr", *addr))
 
-	err = http.ListenAndServe(*addr, app.routes(*staticDir))
+	err = srv.ListenAndServe()
 	if err != nil {
 		logger.Error(err.Error())
 		os.Exit(1)
 	}
+	logger.Info("server stopped")
+	os.Exit(0)
 }
 
 // The openDB() function wraps sql.Open() and returns a sql.DB connection pool for a given DSN.
