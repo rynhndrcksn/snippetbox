@@ -18,7 +18,7 @@ func (app *application) routes(staticDir string) http.Handler {
 
 	// Create a middleware chain containing our "dynamic" middleware
 	// that should only be used on dynamic routes.
-	dynamic := alice.New(app.sessionManager.LoadAndSave, noSurf)
+	dynamic := alice.New(app.sessionManager.LoadAndSave, noSurf, app.authenticate)
 
 	// Register application routes - because we're using "dynamic" middleware which returns a http.Handler
 	// instead of a http.HandlerFunc, we need to call mux.Handle instead of mux.HandleFunc.
