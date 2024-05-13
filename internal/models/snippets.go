@@ -6,6 +6,12 @@ import (
 	"time"
 )
 
+type SnippetModelInterface interface {
+	Insert(title string, content string, expires int) (int, error)
+	Get(id int) (Snippet, error)
+	Latest() ([]Snippet, error)
+}
+
 // Snippet defines a struct which hold the data for an individual snippet. Notice how the fields match the DB table?
 type Snippet struct {
 	ID        int
