@@ -30,7 +30,6 @@ type application struct {
 
 func main() {
 	addr := flag.String("addr", ":8080", "HTTP port")
-	staticDir := flag.String("staticDir", "./ui/static", "Static assets directory")
 	dbConn := flag.String("dbConn", "web:pass@/snippetbox?charset=utf8&parseTime=true", "Database connection string")
 	flag.Parse()
 
@@ -87,7 +86,7 @@ func main() {
 	// more than what http.ListenAndServe can support.
 	srv := &http.Server{
 		Addr:         *addr,
-		Handler:      app.routes(*staticDir),
+		Handler:      app.routes(),
 		ErrorLog:     slog.NewLogLogger(logger.Handler(), slog.LevelError), // Force HTTP errors to use slog for consistency.
 		TLSConfig:    tlsConfig,
 		IdleTimeout:  time.Minute,
