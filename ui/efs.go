@@ -9,5 +9,5 @@ import "embed"
 // This also supports wildcard paths: //go:embed "static/css/*.css" "static/img" "static/js"
 // This also supports files that start with a . or _: //go:embed "all:static"
 //
-//go:embed "static"
+//go:embed "html" "static"
 var Files embed.FS
