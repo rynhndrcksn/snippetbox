@@ -19,6 +19,9 @@ func (app *application) routes() http.Handler {
 	// file will be served (so long as it exists).
 	mux.Handle("GET /static/", http.FileServerFS(ui.Files))
 
+	// Used to determine site is up and running.
+	mux.HandleFunc("GET /ping", ping)
+
 	// Create a middleware chain containing our "dynamic" middleware
 	// that should only be used on dynamic routes.
 	dynamic := alice.New(app.sessionManager.LoadAndSave, noSurf, app.authenticate)
