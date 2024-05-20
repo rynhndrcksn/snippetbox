@@ -20,6 +20,7 @@ import (
 
 // application struct holds the application-wide dependencies
 type application struct {
+	debug          bool
 	logger         *slog.Logger
 	snippets       models.SnippetModelInterface
 	users          models.UserModelInterface
@@ -31,6 +32,7 @@ type application struct {
 func main() {
 	addr := flag.String("addr", ":8080", "HTTP port")
 	dbConn := flag.String("dbConn", "web:pass@/snippetbox?charset=utf8&parseTime=true", "Database connection string")
+	debug := flag.Bool("debug", false, "Enable debug mode")
 	flag.Parse()
 
 	// Initialize a new structured logger
@@ -68,6 +70,7 @@ func main() {
 
 	// Add everything to our 'application' struct.
 	app := &application{
+		debug:          *debug,
 		logger:         logger,
 		snippets:       &models.SnippetModel{DB: db},
 		users:          &models.UserModel{DB: db},
